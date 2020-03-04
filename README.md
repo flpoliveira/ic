@@ -22,3 +22,9 @@ Pré-requisitos
 
 
 sudo mn --custom datacenterBasic.py --topo dcbasic --mac --switch ovs --controller remote
+
+# Tutorial de Ryu - Criando meu primeiro código
+
+## Material usado
+[https://ryu.readthedocs.io/en/latest/writing_ryu_app.html]
+[https://osrg.github.io/ryu-book/en/html/rest_firewall.html]
