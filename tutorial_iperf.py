@@ -3,6 +3,7 @@ from mininet.net import Mininet
 from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel
 from mininet.cli import CLI
+from mininet.node import RemoteController, OVSSwitch
 
 class SingleSwitchTopo(Topo):
     "Single switch connected to n hosts."
@@ -34,7 +35,11 @@ class DoubleSwitchTopo(Topo):
 def simpleTest():
     "Create and test a simple network"
     topo = DoubleSwitchTopo()
-    net = Mininet(topo)
+    net =  net = Mininet(
+        topo=topo,
+        controller=lambda name: RemoteController( name, ip='127.0.0.1' ),
+        switch=OVSSwitch,
+        autoSetMacs=True )
     net.start()
     print "Dumping host connections"
     dumpNodeConnections(net.hosts)
