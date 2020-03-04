@@ -27,4 +27,13 @@ sudo mn --custom datacenterBasic.py --topo dcbasic --mac --switch ovs --controll
 
 ## Material usado
 [Link 1](https://ryu.readthedocs.io/en/latest/writing_ryu_app.html)
+
 [Link 2](https://osrg.github.io/ryu-book/en/html/rest_firewall.html)
+
+Para configurar switches, roteadores, etc. É necessário que escreva uma aplicação Ryu, a aplicação Ryu é formada por scripts em python e ela diz ao Ryu como você quer gerenciar a rede e o Ryu irá configurar os equipamentos usando o protocolo OpenFlow para mim.
+
+Ao criar o arquivo em python utilizando o nome que desejar para rodar basta fazer
+"ryu-manager diretorio/script.py"
+
+
+ryu-manager l2.py ryu.app.ofctl_rest
