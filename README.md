@@ -35,5 +35,14 @@ Para configurar switches, roteadores, etc. É necessário que escreva uma aplica
 Ao criar o arquivo em python utilizando o nome que desejar para rodar basta fazer
 "ryu-manager diretorio/script.py"
 
-
 ryu-manager l2.py ryu.app.ofctl_rest
+
+# Documentação Ryu
+
+* set_ev_cls -> decorator, indica quando a função decorada deve ser chamada 
+    - **Primeiro argumento** indica a que tipo de evento a função é chamada.
+        - ofp_event.EventOFPSwitchFeatures
+        - ofp_event.EventOFPPacketIn
+    - **Segundo argumento** indica o estado do switch
+        - MAIN_DISPATCHER
+

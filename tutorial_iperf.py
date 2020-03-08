@@ -41,8 +41,8 @@ def simpleTest():
         switch=OVSSwitch,
         autoSetMacs=True )
     net.start()
-    print "Dumping host connections"
-    dumpNodeConnections(net.hosts)
+    #print "Dumping host connections"
+    #dumpNodeConnections(net.hosts)
     #print "Testing network connectivity"
     #net.pingAll()
     CLI ( net )
