@@ -34,13 +34,23 @@ class DoubleSwitchTopo(Topo):
 
 def simpleTest():
     "Create and test a simple network"
-    topo = DoubleSwitchTopo()
-    net =  net = Mininet(
+    topo = SingleSwitchTopo(3)
+    #net = Mininet( topo =topo, controller=RemoteController, switch=OVSSwitch, autoSetMacs=True )
+    net = Mininet(
         topo=topo,
         controller=lambda name: RemoteController( name, ip='127.0.0.1' ),
         switch=OVSSwitch,
         autoSetMacs=True )
     net.start()
+    # net.build()
+    # topo['h1'].start()
+    # topo['h2'].start()
+    # topo['h3'].start()
+    # topo['c0'].start()
+    # topo['s1'].start([topo['c0']])
+    # topo['s1'].cmd('ovs-vsctl set Bridge s1 protocols=OpenFlow13')
+    # topo['c0'].cmd('ryu-manager ryu.app.rest_firewall')
+    
     #print "Dumping host connections"
     #dumpNodeConnections(net.hosts)
     #print "Testing network connectivity"

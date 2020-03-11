@@ -36,6 +36,7 @@ class L2Switch(app_manager.RyuApp):
         # 128, OVS will send Packet-In with invalid buffer_id and
         # truncated packet data. In that case, we cannot output packets
         # correctly.  The bug has been fixed in OVS v2.1.0.
+        #match = parser.OFPMatch(in_port=1,eth_src="00:00:00:00:00:01", eth_dst = "00:00:00:00:00:04", ipv4_src="10.0.0.1", ipv4_dst="10.0.0.4")
         match = parser.OFPMatch()
         actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
                                           ofproto.OFPCML_NO_BUFFER)]
@@ -93,9 +94,9 @@ class L2Switch(app_manager.RyuApp):
             
             
         if(menu == 1):
-            actions = [ofp_parser.OFPActionOutput(ofp.OFPP_FLOOD)]
+            actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
             out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                    in_port=in_port, actions=actions, data=data)
+                                    in_port=in_port, actions=actions)
             datapath.send_msg(out)
         else:
             # learn a mac address to avoid FLOOD next time.
@@ -105,9 +106,12 @@ class L2Switch(app_manager.RyuApp):
                 out_port = self.mac_to_port[dpid][dst]
             else:
                 out_port = ofproto.OFPP_FLOOD
-
+            # if dpid == 1:   
+            #     actions = [parser.OFPActionSetField(ipv4_src = "10.0.0.4"), parser.OFPActionOutput(out_port)]
+            # else:
             actions = [parser.OFPActionOutput(out_port)]
-
+            # match= parser.OFPMatch(ipv4_src = '10.0.0.1', ipv4_dst = '10.0.0.4') # NAO FUNCIONA ESSA MERDA
+       
             # install a flow to avoid packet_in next time
             if out_port != ofproto.OFPP_FLOOD:
                 match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
