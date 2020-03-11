@@ -16,11 +16,11 @@ class L2Switch(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(L2Switch, self).__init__(*args, **kwargs)
-        self.logger.info("=========MENU=========")
-        self.logger.info("0 - switch comum")
-        self.logger.info("1 - flood")
-        self.logger.info("======================")
-        menu = input()
+        # self.logger.info("=========MENU=========")
+        # self.logger.info("0 - switch comum")
+        # self.logger.info("1 - flood")
+        # self.logger.info("======================")
+        # menu = input()
         self.mac_to_port = {}
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -92,7 +92,6 @@ class L2Switch(app_manager.RyuApp):
         self.mac_to_port.setdefault(dpid, {})
        
             
-            
         if(menu == 1):
             actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
             out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
@@ -106,11 +105,12 @@ class L2Switch(app_manager.RyuApp):
                 out_port = self.mac_to_port[dpid][dst]
             else:
                 out_port = ofproto.OFPP_FLOOD
-            # if dpid == 1:   
-            #     actions = [parser.OFPActionSetField(ipv4_src = "10.0.0.4"), parser.OFPActionOutput(out_port)]
-            # else:
             actions = [parser.OFPActionOutput(out_port)]
-            # match= parser.OFPMatch(ipv4_src = '10.0.0.1', ipv4_dst = '10.0.0.4') # NAO FUNCIONA ESSA MERDA
+            if not pkt_arp:
+                if dpid == 1:   
+                 actions = [parser.OFPActionSetField(ipv4_src = "10.0.0.4"), parser.OFPActionOutput(out_port)]
+               
+            # match= parser.OFPMatch(ipv4_src = '10.0.0.1', ipv4_dst = '10.0.0.4') # NAO FUNCIONA ISSO
        
             # install a flow to avoid packet_in next time
             if out_port != ofproto.OFPP_FLOOD:

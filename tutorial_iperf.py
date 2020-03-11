@@ -34,7 +34,7 @@ class DoubleSwitchTopo(Topo):
 
 def simpleTest():
     "Create and test a simple network"
-    topo = SingleSwitchTopo(3)
+    topo = DoubleSwitchTopo()
     #net = Mininet( topo =topo, controller=RemoteController, switch=OVSSwitch, autoSetMacs=True )
     net = Mininet(
         topo=topo,
