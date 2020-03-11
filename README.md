@@ -12,8 +12,13 @@
 
 * DNS está fora da rede interna, o roteador da escola é conectado a um ISP (Fornecedor de acesso a internet), servidor DHCP no roteador
 
-1. DHCP
+1. DHCP - Computador conecta a uma rede sem um IP, IP Dinamico
     * Notebook envia um pacote para o destino (255.255.255.255) com endereço de origem IP (0.0.0.0)
-    * O quadro desse pacote tem destino MAC (FF:FF:FF:FF:FF:FF)
-    * 
+    * O quadro desse pacote tem destino MAC (FF:FF:FF:FF:FF:FF) com o mac do Notebook do Bob (00:16:D3:23:68:8A)
+    * O roteador recebe a requisição DHCP do notebook.
+    * Cria uma mensagem ACK DHCP contendo um endereço de IP da sua faixa de rede. Assim como ip do servidor DNS, endereço IP para o roteador de borda (gateway) e o bloco da sub-rede (/24) (Máscara da rede) 
+    * Toda essa mensagem tem o endereço Mac de Origem do roteador (00:22:6B:45:1F:1B) e endereço de destino do notebook do Bob (00:16:D3:23:68:8A)
+    * Esse pacote(quadro) passa pelo comutador e vai direto ao destino, pois o comutador já conhece esse caminho com a autoaprendizagem.
+    * O notebook do Bob recebe esse ACK DHCP e atribui as suas configurações de rede.
+
 </details>
