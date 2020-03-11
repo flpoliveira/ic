@@ -38,7 +38,7 @@
 
 </details>
 
-======
+
 
 ## Desafio com o controlador RYU sobre determinada topologia
 
@@ -379,5 +379,12 @@ ovs-ofctl -O openflow13 dump-flows s2
 ovs-ofctl -O openflow13 dump-flows s2
 ```
 
-<p>Com isso eu consegui delimitar a comunicação entre o h1 e o h4, e permitir que todos os outros computadores da rede pudessem se comunicar.</p>
+<p>Com isso eu consegui delimitar a comunicação entre o h1 e o h4, e permitir que todos os outros computadores da rede pudessem se comunicar, mas o ideal seria que pudesse configurar isto através do python utilizando o RYU, que será descrito abaixo.</p>
+</details>
+
+### Segundo método adotado para configurar os switchs.
+
+<details>
+<summary>Clique para expandir.</summary>
+<p>Ainda não trabalhei nesta parte</p>
 </details>
