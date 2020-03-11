@@ -10,7 +10,7 @@
 
     * DNS está fora da rede interna, o roteador da escola é conectado a um ISP (Fornecedor de acesso a internet), servidor DHCP no roteador
 
-    1. DHCP
+    * DHCP
         * Notebook envia um pacote para o destino (255.255.255.255) com endereço de origem IP (0.0.0.0)
         * O quadro desse pacote tem destino MAC (FF:FF:FF:FF:FF:FF)
         * 
