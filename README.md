@@ -5,8 +5,9 @@
 ### Cenário
 <p>Bob é um estudante e conecta seu notebook ao comutador Ethernet da sua escola e faz o download de uma página Web (www.google.com)</p>
 <img src="/img/bob_cenario.png" alt="Cenario Bob"/>
+==================================
 
-#### DHCP , UDP, IP e Ethernet
+### DHCP , UDP, IP e Ethernet
 
 * DNS está fora da rede interna, o roteador da escola é conectado a um ISP (Fornecedor de acesso a internet), servidor DHCP no roteador
 
