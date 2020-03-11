@@ -37,3 +37,38 @@
 * **Switchs tem autoaprendizado de MAC**.
 
 </details>
+
+======
+
+## Desafio com o controlador RYU sobre determinada topologia
+
+<p>O objetivo da atividade é rodar o controlador RYU sobre uma topologia simulada no ambiente do Mininet e fazer com que o RYU impessa a comunicação entre dois computadores desta topologia.</p>
+
+### Topologia para ser desenvolvida
+
+<img src="topologia_2_switch.png" alt="Topologia">
+
+<p>Essa topologia foi desenvolvida no código topo.py </p>
+<p>Agora o objetivo é fazer com que o RYU mexa no Firewall dos switchs (s1 e s2) da topologia para que os computador (h1 e h4) não possam se comunicar.  </p>
+<p>A questão é que o RYU trabalha em python e o OpenFlow funciona como uma REST_API, então é possivel desenvolver isso de duas maneiras, a primeira é configurando os switchs de forma externa, que vai ser mostrado a seguir.</p>
+
+
+### Primeiro método adotado para configurar os switchs.
+<details>
+<summary>Clique para expandir</summary>
+
+[Material de consulta](https://osrg.github.io/ryu-book/en/html/rest_firewall.html)
+
+1. Rode a topologia (topo.py) usando o Putty para poder utilizar o XMing
+2. Para garantir que os switchs estão sendo executados em OpenFlow 13 faça:
+```
+xterm s1 s2
+
+```
+
+```
+s1 ovs-vsctl set Bridge s1 protocols=OpenFlow13
+s2 ovs-vsctl set Bridge s2 protocols=OpenFlow13
+```
+
+</details>
