@@ -48,7 +48,7 @@
 
 <img src="img/topologia_2_switch.png" alt="Topologia">
 
-<p>Essa topologia foi desenvolvida no código topo.py </p>
+<b>Essa topologia foi desenvolvida no código topo.py</b>
 <p>Agora o objetivo é fazer com que o RYU mexa no Firewall dos switchs (s1 e s2) da topologia para que os computador (h1 e h4) não possam se comunicar.  </p>
 <p>A questão é que o RYU trabalha em python e o OpenFlow funciona como uma REST_API, então é possivel desenvolver isso de duas maneiras, a primeira é configurando os switchs de forma externa, que vai ser mostrado a seguir.</p>
 
