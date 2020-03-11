@@ -29,7 +29,7 @@
   * Por fim o TCP faz a conexão (SYN - ACK) entre o servidor da Google e o notebook do Bob e o fluxo é criado.
 
 
-Obs: Sendo assim, não esquecer:
+### **Obs -Sendo assim, não esquecer:**
 * **DHCP** - Atribuir IP a um computador
 * **DNS** - Traduz o nome para endereço IP, pode ou não estar localizado na rede interna
 * **ARP** - Requisita o endereço MAC de um IP de uma mesma rede.
