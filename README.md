@@ -46,7 +46,7 @@
 
 ### Topologia para ser desenvolvida
 
-<img src="topologia_2_switch.png" alt="Topologia">
+<img src="img/topologia_2_switch.png" alt="Topologia">
 
 <p>Essa topologia foi desenvolvida no código topo.py </p>
 <p>Agora o objetivo é fazer com que o RYU mexa no Firewall dos switchs (s1 e s2) da topologia para que os computador (h1 e h4) não possam se comunicar.  </p>
@@ -71,4 +71,313 @@ s1 ovs-vsctl set Bridge s1 protocols=OpenFlow13
 s2 ovs-vsctl set Bridge s2 protocols=OpenFlow13
 ```
 
+3. Agora rode o controlador e o rest_firewall nele.
+
+```
+xterm c0
+```
+
+```
+ryu-manager ryu.app.rest_firewall
+```
+
+4. Agora que a brincadeira começa de verdade, abra um terminal e cole os seguintes códigos curl, que irão fazer requisição PUT/POST no servidor REST_API para que os switchs sejam configurados.
+
+  * Ativando o firewall nos switchs
+```json
+curl -X PUT http://localhost:8080/firewall/module/enable/0000000000000001
+  [
+    {
+      "switch_id": "0000000000000001",
+      "command_result": {
+        "result": "success",
+        "details": "firewall running."
+      }
+    }
+  ]
+```
+```json
+curl -X PUT http://localhost:8080/firewall/module/enable/0000000000000002
+  [
+    {
+      "switch_id": "0000000000000002",
+      "command_result": {
+        "result": "success",
+        "details": "firewall running."
+      }
+    }
+  ]
+```
+
+  * Verificando se o firewall está ativo
+```json
+curl http://localhost:8080/firewall/module/status
+```
+
+  * Permitir comunicação de todos os protocolos no s1 para h1 -> h2
+
+```json
+curl -X POST -d '{"nw_src": "10.0.0.1/32", "nw_dst": "10.0.0.2/32"}' http://localhost:8080/firewall/rules/0000000000000001
+  [
+    {
+      "switch_id": "0000000000000001",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=1"
+        }
+      ]
+    }
+  ]
+```
+
+```json
+curl -X POST -d '{"nw_src": "10.0.0.2/32", "nw_dst": "10.0.0.1/32"}' http://localhost:8080/firewall/rules/0000000000000001
+  [
+    {
+      "switch_id": "0000000000000001",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=2"
+        }
+      ]
+    }
+  ]
+```
+
+  * Permitir a comunicação de todos os protocolos h1->h3
+
+  #### s1
+```json
+curl -X POST -d '{"nw_src": "10.0.0.1/32", "nw_dst": "10.0.0.3/32"}' http://localhost:8080/firewall/rules/0000000000000001
+  [
+    {
+      "switch_id": "0000000000000001",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=3"
+        }
+      ]
+    }
+  ]
+```
+
+```json
+curl -X POST -d '{"nw_src": "10.0.0.3/32", "nw_dst": "10.0.0.1/32"}' http://localhost:8080/firewall/rules/0000000000000001
+  [
+    {
+      "switch_id": "0000000000000001",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=4"
+        }
+      ]
+    }
+  ]
+```
+
+  #### s2
+```json
+curl -X POST -d '{"nw_src": "10.0.0.1/32", "nw_dst": "10.0.0.3/32"}' http://localhost:8080/firewall/rules/0000000000000002
+  [
+    {
+      "switch_id": "0000000000000002",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=5"
+        }
+      ]
+    }
+  ]
+
+```
+
+```json
+curl -X POST -d '{"nw_src": "10.0.0.3/32", "nw_dst": "10.0.0.1/32"}' http://localhost:8080/firewall/rules/0000000000000002
+  [
+    {
+      "switch_id": "0000000000000002",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=6"
+        }
+      ]
+    }
+  ]
+```
+  * Permitir a comunicação de todos os protocolos h2->h3
+
+  #### s1
+```json
+curl -X POST -d '{"nw_src": "10.0.0.2/32", "nw_dst": "10.0.0.3/32"}' http://localhost:8080/firewall/rules/0000000000000001
+  [
+    {
+      "switch_id": "0000000000000001",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=7"
+        }
+      ]
+    }
+  ]
+```
+
+```json
+curl -X POST -d '{"nw_src": "10.0.0.3/32", "nw_dst": "10.0.0.2/32"}' http://localhost:8080/firewall/rules/0000000000000001
+  [
+    {
+      "switch_id": "0000000000000001",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=8"
+        }
+      ]
+    }
+  ]
+```
+
+  #### s2
+```json
+curl -X POST -d '{"nw_src": "10.0.0.2/32", "nw_dst": "10.0.0.3/32"}' http://localhost:8080/firewall/rules/0000000000000002
+  [
+    {
+      "switch_id": "0000000000000002",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=9"
+        }
+      ]
+    }
+  ]
+```
+
+```json
+curl -X POST -d '{"nw_src": "10.0.0.3/32", "nw_dst": "10.0.0.2/32"}' http://localhost:8080/firewall/rules/0000000000000002
+  [
+    {
+      "switch_id": "0000000000000002",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=10"
+        }
+      ]
+    }
+  ]
+```
+
+  * Permitir a comunicação de todos os protocolos h3->h4
+```json
+curl -X POST -d '{"nw_src": "10.0.0.4/32", "nw_dst": "10.0.0.3/32"}' http://localhost:8080/firewall/rules/0000000000000002
+  [
+    {
+      "switch_id": "0000000000000002",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=11"
+        }
+      ]
+    }
+  ]
+```
+
+```json
+curl -X POST -d '{"nw_src": "10.0.0.3/32", "nw_dst": "10.0.0.4/32"}' http://localhost:8080/firewall/rules/0000000000000002
+  [
+    {
+      "switch_id": "0000000000000002",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=12"
+        }
+      ]
+    }
+  ]
+```
+
+  * Permitir a comunicação de todos os protocolos h2->h4
+
+  #### s1
+```json
+curl -X POST -d '{"nw_src": "10.0.0.2/32", "nw_dst": "10.0.0.4/32"}' http://localhost:8080/firewall/rules/0000000000000001
+  [
+    {
+      "switch_id": "0000000000000001",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=13"
+        }
+      ]
+    }
+  ]
+```
+
+```json
+curl -X POST -d '{"nw_src": "10.0.0.4/32", "nw_dst": "10.0.0.2/32"}' http://localhost:8080/firewall/rules/0000000000000001
+  [
+    {
+      "switch_id": "0000000000000001",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=14"
+        }
+      ]
+    }
+  ]
+```
+
+  #### s2
+
+```json
+curl -X POST -d '{"nw_src": "10.0.0.2/32", "nw_dst": "10.0.0.4/32"}' http://localhost:8080/firewall/rules/0000000000000002
+  [
+    {
+      "switch_id": "0000000000000002",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=15"
+        }
+      ]
+    }
+  ]
+```
+
+```json
+curl -X POST -d '{"nw_src": "10.0.0.4/32", "nw_dst": "10.0.0.2/32"}' http://localhost:8080/firewall/rules/0000000000000002
+  [
+    {
+      "switch_id": "0000000000000002",
+      "command_result": [
+        {
+          "result": "success",
+          "details": "Rule added. : rule_id=16"
+        }
+      ]
+    }
+  ]
+```
+5. Checar as regras no switch
+```
+xterm s1 s2
+``` 
+
+```
+ovs-ofctl -O openflow13 dump-flows s2
+ovs-ofctl -O openflow13 dump-flows s2
+```
+
+<p>Com isso eu consegui delimitar a comunicação entre o h1 e o h4, e permitir que todos os outros computadores da rede pudessem se comunicar.</p>
 </details>
