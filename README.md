@@ -403,8 +403,11 @@ ovs-ofctl -O openflow13 dump-flows s2
 
 <p>Aplicação para monitoramento do tráfego, implementada pela OSRG sobre um Switch HUB (Switch que faz ações simples como autoaprendizagem, etc...) com o adicional de uma thread que periodicamente faz requisições para o switch OpenFlow para adquirir informações estatísticas. Está thread está implementada em <code>ryu.lib.hub</code>, especificamente no <code>hub.spawn()</code> que usa o eventlet green thread.</p>
 
-* <code>_monitor</code>
-  * Função da thread que faz a requisição  a cada 10 segundos.
+#### <code>_monitor</code>
+* Função da thread que faz a requisição  a cada 10 segundos.
+
+#### <code> _state_change_handler </code>
+
 * <code>EventOFPStateChange</code>
   * Para ter certeza que o switch conectado está sendo monitorado essa flag é utilizada para detectar conexões e desconexões.
   * Isso é emitido pelo RYU quando o estado do Datapath é alterado.
@@ -414,13 +417,15 @@ ovs-ofctl -O openflow13 dump-flows s2
 * <code>DEAD_DISPATCHER</code>
   * Disconnect from the peer. Or disconnecting due to some unrecoverable errors.
   * Quando o datapath troca para este estado, o registro é deletado do monitor.
-* <code>_request_stats()</code>
-  * Função periodicamente chamada para requisitar informações estatisticas para o switch.
-  * <code>OFPFlowStatsRequest</code>
-    * The controller uses this message to query individual flow statistics.
-  * <code>OFPPortStatsRequest</code> 
-    * The controller uses this message to query information about ports statistics.
-* 
+
+#### <code>_request_stats()</code>
+* Função periodicamente chamada para requisitar informações estatisticas para o switch.
+* <code>OFPFlowStatsRequest</code>
+  * The controller uses this message to query individual flow statistics.
+* <code>OFPPortStatsRequest</code> 
+  * The controller uses this message to query information about ports statistics.
+  * <code>OFPP_ANY</code> - Flag to request information from all ports.
+
 
 
 </details>
