@@ -399,7 +399,7 @@ ovs-ofctl -O openflow13 dump-flows s2
 <details>
 <summary>Clique para expandir.</summary>
 
-<p>Aplicação para monitoramento do tráfego, implementada pela OSRG sobre um Switch HUB (Switch que faz ações simples como autoaprendizagem, etc...) com o adicional de uma thread (_monitor) que periodicamente faz requisições para o switch OpenFlow para adquirir informações estatísticas. Está thread está implementada em ```ryu.lib.hub``` que usa o eventlet green thread.</p>
+<p>Aplicação para monitoramento do tráfego, implementada pela OSRG sobre um Switch HUB (Switch que faz ações simples como autoaprendizagem, etc...) com o adicional de uma thread (_monitor) que periodicamente faz requisições para o switch OpenFlow para adquirir informações estatísticas. Está thread está implementada em `ryu.lib.hub` que usa o eventlet green thread.</p>
 
 
 </details>
