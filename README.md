@@ -54,7 +54,7 @@
 <p>A questão é que o RYU trabalha em python e o OpenFlow funciona como uma REST_API, então é possivel desenvolver isso de duas maneiras, a primeira é configurando os switchs de forma externa, que vai ser mostrado a seguir.</p>
 
 
-### Primeiro método adotado para configurar os switchs.
+### Método adotado para configurar os switchs.
 <details>
 <summary>Clique para expandir</summary>
 
@@ -383,9 +383,23 @@ ovs-ofctl -O openflow13 dump-flows s2
 <p>Com isso eu consegui delimitar a comunicação entre o h1 e o h4, e permitir que todos os outros computadores da rede pudessem se comunicar, mas o ideal seria que pudesse configurar isto através do python utilizando o RYU, que será descrito abaixo.</p>
 </details>
 
-### Segundo método adotado para configurar os switchs.
+## Utilizando o RYU para monitoramento de rede
+
+<p> Agora o objetivo é utilizar o RYU para monitorar o tráfego da rede.</p>
+<p> Para isto vamos adotar a mesma topologia do exemplo anterior.</p>
+
+<p> **Materiais de Consulta:** </p>
+
+[Switch HUB by OSRG](https://osrg.github.io/ryu-book/en/html/switching_hub.html#ch-switching-hub)
+[Traffic Monitor by OSRG](https://osrg.github.io/ryu-book/en/html/traffic_monitor.html)
+[Traffic Monitor by CheHsuan](https://github.com/CheHsuan/RYU-TrafficMonitorApp)
+
+### simple_monitor_13.py
 
 <details>
 <summary>Clique para expandir.</summary>
-<p>Ainda não trabalhei nesta parte</p>
+
+<p>Aplicação para monitoramento do tráfego, implementada pela OSRG sobre um Switch HUB (Switch que faz ações simples como autoaprendizagem, etc...) com o adicional de uma thread (_monitor) que periodicamente faz requisições para o switch OpenFlow para adquirir informações estatísticas. Está thread está implementada em ```ryu.lib.hub``` que usa o eventlet green thread.</p>
+
+
 </details>
