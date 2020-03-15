@@ -414,7 +414,13 @@ ovs-ofctl -O openflow13 dump-flows s2
 * <code>DEAD_DISPATCHER</code>
   * Disconnect from the peer. Or disconnecting due to some unrecoverable errors.
   * Quando o datapath troca para este estado, o registro é deletado do monitor.
-
+* <code>_request_stats()</code>
+  * Função periodicamente chamada para requisitar informações estatisticas para o switch.
+  * <code>OFPFlowStatsRequest</code>
+    * The controller uses this message to query individual flow statistics.
+  * <code>OFPPortStatsRequest</code> 
+    * The controller uses this message to query information about ports statistics.
+* 
 
 
 </details>
