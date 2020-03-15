@@ -401,7 +401,20 @@ ovs-ofctl -O openflow13 dump-flows s2
 <details>
 <summary>Clique para expandir.</summary>
 
-<p>Aplicação para monitoramento do tráfego, implementada pela OSRG sobre um Switch HUB (Switch que faz ações simples como autoaprendizagem, etc...) com o adicional de uma thread (_monitor) que periodicamente faz requisições para o switch OpenFlow para adquirir informações estatísticas. Está thread está implementada em <code>ryu.lib.hub</code> que usa o eventlet green thread.</p>
+<p>Aplicação para monitoramento do tráfego, implementada pela OSRG sobre um Switch HUB (Switch que faz ações simples como autoaprendizagem, etc...) com o adicional de uma thread que periodicamente faz requisições para o switch OpenFlow para adquirir informações estatísticas. Está thread está implementada em <code>ryu.lib.hub</code>, especificamente no <code>hub.spawn()</code> que usa o eventlet green thread.</p>
+
+* <code>_monitor</code>
+  * Função da thread que faz a requisição  a cada 10 segundos.
+* <code>EventOFPStateChange</code>
+  * Para ter certeza que o switch conectado está sendo monitorado essa flag é utilizada para detectar conexões e desconexões.
+  * Isso é emitido pelo RYU quando o estado do Datapath é alterado.
+* <code>MAIN_DISPATCHER</code>
+  * Switch-features message received and sent set-config message
+  * Quando o estado do Datapath se torna este, o switch torna-se o alvo de monitoramento
+* <code>DEAD_DISPATCHER</code>
+  * Disconnect from the peer. Or disconnecting due to some unrecoverable errors.
+  * Quando o datapath troca para este estado, o registro é deletado do monitor.
+
 
 
 </details>
