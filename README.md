@@ -426,6 +426,17 @@ ovs-ofctl -O openflow13 dump-flows s2
   * The controller uses this message to query information about ports statistics.
   * <code>OFPP_ANY</code> - Flag to request information from all ports.
 
+#### <code>_flow_stats_reply_handler</code>
+* Handler que recebe as respostas do switchs referentes ao estado do fluxo
+* Todos os fluxos são selecionados menos o de Table-miss com prioridade 0.
+* Os pacotes que os bytes correspondem a um respectivo fluxo são ordenados por sua porta e MAC de destino.
+* Neste exemplo, apenas parte dos valores são postas ao log, mas o JSON gerado pelo <code>OFPFlowStatsReply</code> no atributo da classe <code>body</code> é maior.
+
+#### <code>_port_stats_reply_handler</code>
+* Handler que recebe as respostas dos switchs referente ao estado das portas.
+
+
+
 
 
 </details>
