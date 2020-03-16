@@ -435,6 +435,9 @@ ovs-ofctl -O openflow13 dump-flows s2
 #### <code>_port_stats_reply_handler</code>
 * Handler que recebe as respostas dos switchs referente ao estado das portas.
 
+### Rodando o Monitor
+* Em um terminal rode o <code>sudo python topo.py</code>
+* Em outro terminal <code> ryu-manager --verbose ryu.app.simple_monitor_13</code>
 
 
 
