@@ -1,6 +1,6 @@
 ## Resumo Leitura "Redes de computadores e a Internet: uma abordagem top-down" Kurose 6ª Edição.
 <details>
-  <summary>Item 5.7 Um dia na vida de uma solicitação de página Web pg366</summary>
+  <summary> CLIQUE PARA EXPANDIR - Item 5.7 Um dia na vida de uma solicitação de página Web pg366</summary>
 
 ### Cenário
 <p>Bob é um estudante e conecta seu notebook ao comutador Ethernet da sua escola e faz o download de uma página Web (www.google.com)</p>
