@@ -469,7 +469,7 @@ ovs-ofctl -O openflow13 dump-flows s2
 | match | Fields to match | {"in_port":1} |
 | actions | Instruction set | ["OUTPUT:2"] |
 
-#### O que obti com os print
+#### Valores obtidos em ambiente real
 
 | Atributo | Valor |
 | --- | --- |
@@ -497,6 +497,8 @@ ovs-ofctl -O openflow13 dump-flows s2
 <details>
 <summary>FlowStats - Clique para expandir</summary>
 
+#### Body do JSON
+
 | Atributo | Descrição | Exemplo |
 | --- | --- | --- |
 | dpid | Datapath ID | "1" |
@@ -514,7 +516,7 @@ ovs-ofctl -O openflow13 dump-flows s2
 | match | Fields to match | {"in_port":1} |
 | actions | Instruction set | ["OUTPUT:2"] |
 
-#### O que obti com os print
+#### Valores obtidos em ambiente real
 
 | Atributo | Valor |
 | --- | --- |
