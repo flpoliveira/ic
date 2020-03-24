@@ -536,3 +536,6 @@ ovs-ofctl -O openflow13 dump-flows s2
 
 
 </details>
+
+* [Link interessante que achei sobre OXM Fields](http://flowgrammable.org/sdn/openflow/message-layer/match/#tab_ofp_1_3)
+* [Link interessante que achei sobre REST/API Ryu para pegar informações](https://ryu.readthedocs.io/en/latest/app/ofctl_rest.html#get-all-flows-stats)
