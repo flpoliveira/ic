@@ -10,27 +10,27 @@ from ryu.lib import hub
 
 lista = set()
 
-def insertPortStats(datapath, port, rx-pkts, rx-bytes, rx-error, txt-pkts, tx-bytes, tx-error):
-            connection = pymysql.connect(host='localhost',
-                                            user='root',
-                                            password='root',
-                                            db='database',
-                                            charset='utf8mb4',
-                                            cursorclass=pymysql.cursors.DictCursor)
-            try:
-                with connection.cursor() as cursor:
-                    # Create a new record
-                    sql = ("INSERT INTO `portStats`(`datapath`, `port`, `rx-pkts`, `rx-bytes`, `rx-error`, `tx-pkts`, `tx-bytes`, `tx-error`) VALUES ( %s,%s, %s, %s, %s, %s, %s, %s)")
+# def insertPortStats(datapath, port, rx-pkts, rx-bytes, rx-error, txt-pkts, tx-bytes, tx-error):
+#             connection = pymysql.connect(host='localhost',
+#                                             user='root',
+#                                             password='root',
+#                                             db='database',
+#                                             charset='utf8mb4',
+#                                             cursorclass=pymysql.cursors.DictCursor)
+#             try:
+#                 with connection.cursor() as cursor:
+#                     # Create a new record
+#                     sql = ("INSERT INTO `portStats`(`datapath`, `port`, `rx-pkts`, `rx-bytes`, `rx-error`, `tx-pkts`, `tx-bytes`, `tx-error`) VALUES ( %s,%s, %s, %s, %s, %s, %s, %s)")
                     
-                    cursor.execute(sql, (datapath, port,
-                            rx-pkts, rx-bytes, rx-error,
-                            tx-pkts, tx_bytes, tx_errors))
+#                     cursor.execute(sql, (datapath, port,
+#                             rx-pkts, rx-bytes, rx-error,
+#                             tx-pkts, tx_bytes, tx_errors))
 
-                # connection is not autocommit by default. So you must commit to save
-                # your changes.
-                connection.commit()
-            finally:
-                connection.close()
+#                 # connection is not autocommit by default. So you must commit to save
+#                 # your changes.
+#                 connection.commit()
+#             finally:
+#                 connection.close()
 
 class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 
@@ -118,6 +118,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         for stat in sorted([flow for flow in body if flow.priority == 1],
                            key=lambda flow: (flow.match['in_port'],
                                              flow.match['eth_dst'])):
+            print(stat)
             aux = ('%016x %8x %17s %8x %8d %8d'%
                              (ev.msg.datapath.id,
                              stat.match['in_port'], stat.match['eth_dst'],
@@ -160,14 +161,15 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                          '-------- -------- -------- '
                          '-------- -------- --------')
         for stat in sorted(body, key=attrgetter('port_no')):
+            print(stat)
             aux = ('%016x %8x %8d %8d %8d %8d %8d %8d' %
                              (ev.msg.datapath.id, stat.port_no,
                              stat.rx_packets, stat.rx_bytes, stat.rx_errors,
                              stat.tx_packets, stat.tx_bytes, stat.tx_errors))
             self.logger.info(aux)
-            if aux not in lista:
-                lista.add(aux)
-                insertPortStats(ev.msg.datapath.id, stat.port_no,
-                                stat.rx_packets, stat.rx_bytes, stat.rx_errors,
-                                stat.tx_packets, stat.tx_bytes, stat.tx_errors)
+            # if aux not in lista:
+            #     lista.add(aux)
+            #     insertPortStats(ev.msg.datapath.id, stat.port_no,
+            #                     stat.rx_packets, stat.rx_bytes, stat.rx_errors,
+            #                     stat.tx_packets, stat.tx_bytes, stat.tx_errors)
         
