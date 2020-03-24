@@ -469,5 +469,24 @@ ovs-ofctl -O openflow13 dump-flows s2
 
 </details>
 
+<details>
+<summary>FlowStats - Clique para expandir</summary>
 
+| Atributo | Descrição | Exemplo |
+| --- | --- | --- |
+| dpid | Datapath ID | "1" |
+| length | Length of this entry | 88 |
+| table_id | Table ID | 0 |
+| duration_sec | Time flow has been alive in seconds | 2 |
+| duration_nsec | Time flow has been alive in nanoseconds beyond duration_sec | 6.76e+08 |
+| priority | Priority of the entry | 11111 |
+| idle_timeout | Number of seconds idle before expiration | 0 |
+| hard_timeout | Number of seconds before expiration | 0 |
+| flags | Bitmap of OFPFF_* flags | 1 |
+| cookie | Opaque controller-issued identifier | 1 |
+| packet_count | Number of packet in flow | 0 |
+| byte_count | Number of bytes in flow | 0 |
+| match | Fields to match | {"in_port":1} |
+| actions | Instruction set | ["OUTPUT:2"] |
 
+</details>
