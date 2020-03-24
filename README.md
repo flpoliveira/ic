@@ -446,4 +446,11 @@ ovs-ofctl -O openflow13 dump-flows s2
 
 ## Guardando as informações do monitor em uma database
 
-##### Port Stats
+#### Port Stats
+
+| Atributo | Descrição | Exemplo |
+| --- | --- | --- |
+| dpid | Datapath ID | "1" |
+
+
+
