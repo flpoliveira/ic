@@ -446,7 +446,9 @@ ovs-ofctl -O openflow13 dump-flows s2
 
 ## Guardando as informações do monitor em uma database
 
-#### Port Stats
+<details>
+
+<summary> Port Stats - Clique para expandir </summary>
 
 | Atributo | Descrição | Exemplo |
 | --- | --- | --- |
@@ -465,7 +467,7 @@ ovs-ofctl -O openflow13 dump-flows s2
 | match | Fields to match | {"in_port":1} |
 | actions | Instruction set | ["OUTPUT:2"] |
 
-
+</details>
 
 
 
