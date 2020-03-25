@@ -544,4 +544,4 @@ ovs-ofctl -O openflow13 dump-flows s2
 
 <img src='img/database.png' alt='Modelo conceitual do banco'>
 
-<p>Uma base de dados foi desenvolvida para este sistema e a o código **simple_monitor_13.py** foi adaptado para que seus monitoramentos forem inseridos neste banco</p>
+<p>Uma base de dados foi desenvolvida para este sistema e a o código <b>simple_monitor_13.py </b> foi adaptado para que seus monitoramentos forem inseridos neste banco</p>
