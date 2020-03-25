@@ -110,19 +110,38 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                 self._request_stats(dp)
             hub.sleep(10)
     
-   
-    # @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
-    # def switch_features_handler(self, ev):
-    #     msg = ev.msg
-    #     insertSwitchFeatures(msg.datapath_id, msg.n_buffers, msg.n_tables, msg.auxiliary_id, msg.capabilities)
+    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
+    def switch_features_handler(self, ev):
+        msg = ev.msg
+        datapath = ev.msg.datapath
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
 
-    #     self.logger.info('OFPSwitchFeatures received: '
-    #                     'datapath_id=0x%016x n_buffers=%d '
-    #                     'n_tables=%d auxiliary_id=%d '
-    #                     'capabilities=0x%08x',
-    #                     msg.datapath_id, msg.n_buffers, msg.n_tables,
-    #                     msg.auxiliary_id, msg.capabilities)
+        insertSwitchFeatures(msg.datapath_id, msg.n_buffers, msg.n_tables, msg.auxiliary_id, msg.capabilities)
+        self.logger.info('OFPSwitchFeatures received: '
+                        'datapath_id=0x%016x n_buffers=%d '
+                        'n_tables=%d auxiliary_id=%d '
+                        'capabilities=0x%08x',
+                        msg.datapath_id, msg.n_buffers, msg.n_tables,
+                        msg.auxiliary_id, msg.capabilities)
 
+        # install the table-miss flow entry.
+        match = parser.OFPMatch()
+        actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
+                                          ofproto.OFPCML_NO_BUFFER)]
+        self.add_flow(datapath, 0, match, actions)
+
+    def add_flow(self, datapath, priority, match, actions):
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+
+        # construct flow_mod message and send it.
+        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
+                                             actions)]
+        mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
+                                match=match, instructions=inst)
+        datapath.send_msg(mod)
+        
     def _request_stats(self, datapath):
         self.logger.debug('send stats request: %016x', datapath.id)
         ofproto = datapath.ofproto
