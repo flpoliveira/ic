@@ -539,3 +539,9 @@ ovs-ofctl -O openflow13 dump-flows s2
 
 * [Link interessante que achei sobre OXM Fields](http://flowgrammable.org/sdn/openflow/message-layer/match/#tab_ofp_1_3)
 * [Link interessante que achei sobre REST/API Ryu para pegar informações](https://ryu.readthedocs.io/en/latest/app/ofctl_rest.html#get-all-flows-stats)
+
+### Modelo conceitual do banco
+
+<img src='img/database.png' alt='Modelo conceitual do banco'>
+
+<p>Uma base de dados foi desenvolvida para este sistema e a o código **simple_monitor_13.py** foi adaptado para que seus monitoramentos forem inseridos neste banco</p>
