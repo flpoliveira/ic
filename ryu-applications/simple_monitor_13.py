@@ -1,10 +1,21 @@
 import pymysql.cursors
 from operator import attrgetter
+from ryu.base import app_manager
 from ryu.app import simple_switch_13
+from ryu.ofproto import ofproto_v1_3
+from ryu.ofproto import ether
 from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER, DEAD_DISPATCHER, CONFIG_DISPATCHER
 from ryu.controller.handler import set_ev_cls
+from ryu.lib.packet import packet
+from ryu.lib.packet import ethernet
+from ryu.lib.packet import ipv4
+from ryu.lib.packet import tcp
+from ryu.lib.packet import udp
+from ryu.lib.packet import icmp
 from ryu.lib import hub
+
+
 
 
 
@@ -117,7 +128,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
-        insertSwitchFeatures(msg.datapath_id, msg.n_buffers, msg.n_tables, msg.auxiliary_id, msg.capabilities)
+        #insertSwitchFeatures(msg.datapath_id, msg.n_buffers, msg.n_tables, msg.auxiliary_id, msg.capabilities)
         self.logger.info('OFPSwitchFeatures received: '
                         'datapath_id=0x%016x n_buffers=%d '
                         'n_tables=%d auxiliary_id=%d '
@@ -141,7 +152,77 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
                                 match=match, instructions=inst)
         datapath.send_msg(mod)
+
+    @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
+    def _packet_in_handler(self, ev):
+        msg = ev.msg
+        datapath = msg.datapath
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+
+        # get Datapath ID to identify OpenFlow switches.
+        dpid = datapath.id
+        self.mac_to_port.setdefault(dpid, {})
+
+        # analyse the received packets using the packet library.
+        pkt = packet.Packet(msg.data)
+        eth_pkt = pkt.get_protocol(ethernet.ethernet)
+        tcpvar = pkt.get_protocol(tcp.tcp)
+        udpvar = pkt.get_protocol(udp.udp)
+        ipv4_pkt = pkt.get_protocol(ipv4.ipv4)
+        icmpvar = pkt.get_protocol(icmp.icmp)
         
+        dst = eth_pkt.dst
+        src = eth_pkt.src
+        if(ipv4_pkt):
+            origem = ipv4_pkt.src
+            destino = ipv4_pkt.dst
+        #     self.logger.info(destino)
+        if(tcpvar):
+            port_src = tcpvar.src_port
+            port_dst = tcpvar.dst_port
+        elif(udpvar):
+            port_src = udpvar.src_port
+            port_dst = udpvar.dst_port
+
+        # get the received port number from packet_in message.
+        in_port = msg.match['in_port']
+
+       # self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+
+        # learn a mac address to avoid FLOOD next time.
+        self.mac_to_port[dpid][src] = in_port
+
+        # if the destination mac address is already learned,
+        # decide which port to output the packet, otherwise FLOOD.
+        if dst in self.mac_to_port[dpid]:
+            out_port = self.mac_to_port[dpid][dst]
+        else:
+            out_port = ofproto.OFPP_FLOOD
+
+        # construct action list.
+        actions = [parser.OFPActionOutput(out_port)]
+
+        # install a flow to avoid packet_in next time.
+        if out_port != ofproto.OFPP_FLOOD:
+            if(tcpvar and ipv4_pkt):
+                match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, tcp_src = port_src, tcp_dst = port_dst)
+            elif(udpvar and ipv4_pkt):
+                match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, udp_src = port_src, udp_dst = port_dst)
+            else:
+                if(ipv4_pkt):
+                    match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino)
+                else:
+                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+            self.add_flow(datapath, 1, match, actions)
+
+        # construct packet_out message and send it.
+        out = parser.OFPPacketOut(datapath=datapath,
+                                  buffer_id=ofproto.OFP_NO_BUFFER,
+                                  in_port=in_port, actions=actions,
+                                  data=msg.data)
+        datapath.send_msg(out)
+
     def _request_stats(self, datapath):
         self.logger.debug('send stats request: %016x', datapath.id)
         ofproto = datapath.ofproto
@@ -150,8 +231,8 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         req = parser.OFPFlowStatsRequest(datapath)
         datapath.send_msg(req)
 
-        req = parser.OFPPortStatsRequest(datapath, 0, ofproto.OFPP_ANY)
-        datapath.send_msg(req)
+        # req = parser.OFPPortStatsRequest(datapath, 0, ofproto.OFPP_ANY)
+        # datapath.send_msg(req)
 
    
     @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
@@ -164,21 +245,22 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         self.logger.info('---------------- '
                          '-------- ----------------- '
                          '-------- -------- --------')
-        for stat in sorted([flow for flow in body if flow.priority == 1],
-                           key=lambda flow: (flow.match['in_port'],
-                                             flow.match['eth_dst'])):
-            aux = ('%016x %8x %17s %8x %8d %8d'%
-                             (ev.msg.datapath.id,
-                             stat.match['in_port'], stat.match['eth_dst'],
-                             stat.instructions[0].actions[0].port,
-                             stat.packet_count, stat.byte_count))
-            self.logger.info(aux)
-            if aux not in lista:
-               lista.add(aux)
-               insertFlowStats(ev.msg.datapath.id,
-                             stat.match['in_port'], stat.match['eth_dst'],
-                             stat.instructions[0].actions[0].port,
-                             stat.packet_count, stat.byte_count)
+        print(body)
+        # for stat in sorted([flow for flow in body if flow.priority == 1],
+        #                    key=lambda flow: (flow.match['in_port'],
+        #                                      flow.match['eth_dst'], flow.match['eth_src'])):
+            # aux = ('%016x %8x %17s %17s %8x %8d %8d'%
+            #                  (ev.msg.datapath.id,
+            #                  stat.match['in_port'], stat.match['eth_dst'], stat.match['tcp_src'],
+            #                  stat.instructions[0].actions[0].port,
+            #                  stat.packet_count, stat.byte_count))
+            # self.logger.info(aux)
+            # if aux not in lista:
+            #    lista.add(aux)
+            #    insertFlowStats(ev.msg.datapath.id,
+            #                  stat.match['in_port'], stat.match['eth_dst'],
+            #                  stat.instructions[0].actions[0].port,
+            #                  stat.packet_count, stat.byte_count)
            
 
     @set_ev_cls(ofp_event.EventOFPPortStatsReply, MAIN_DISPATCHER)
@@ -192,14 +274,15 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                          '-------- -------- -------- '
                          '-------- -------- --------')
         for stat in sorted(body, key=attrgetter('port_no')):
-            aux = ('%016x %8x %8d %8d %8d %8d %8d %8d' %
-                             (ev.msg.datapath.id, stat.port_no,
-                             stat.rx_packets, stat.rx_bytes, stat.rx_errors,
-                             stat.tx_packets, stat.tx_bytes, stat.tx_errors))
-            self.logger.info(aux)
-            if aux not in lista:
-                lista.add(aux)
-                insertPortStats(ev.msg.datapath.id, stat.port_no,
-                                stat.rx_packets, stat.rx_bytes, stat.rx_errors,
-                                stat.tx_packets, stat.tx_bytes, stat.tx_errors)
+            print(stat)
+            # aux = ('%016x %8x %8d %8d %8d %8d %8d %8d' %
+            #                  (ev.msg.datapath.id, stat.port_no,
+            #                  stat.rx_packets, stat.rx_bytes, stat.rx_errors,
+            #                  stat.tx_packets, stat.tx_bytes, stat.tx_errors))
+            # self.logger.info(aux)
+            # if aux not in lista:
+            #     lista.add(aux)
+            #     insertPortStats(ev.msg.datapath.id, stat.port_no,
+            #                     stat.rx_packets, stat.rx_bytes, stat.rx_errors,
+            #                     stat.tx_packets, stat.tx_bytes, stat.tx_errors)
         
