@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Tempo de geração: 31/03/2020 às 11:14
+-- Tempo de geração: 31/03/2020 às 11:59
 -- Versão do servidor: 5.7.29-0ubuntu0.18.04.1
 -- Versão do PHP: 7.2.24-0ubuntu0.18.04.3
 
@@ -33,8 +33,8 @@ CREATE TABLE `flowStats` (
   `out-port` varchar(50) CHARACTER SET utf8 NOT NULL,
   `eth-src` varchar(17) CHARACTER SET utf8 NOT NULL,
   `eth-dst` varchar(17) CHARACTER SET utf8 NOT NULL,
-  `packets` int(255) NOT NULL,
-  `bytes` int(255) NOT NULL,
+  `packets` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `bytes` varchar(255) CHARACTER SET utf8 NOT NULL,
   `eth-type` int(11) DEFAULT NULL,
   `ip-proto` int(11) DEFAULT NULL,
   `ipv4-src` varchar(15) CHARACTER SET utf8 DEFAULT NULL,
@@ -55,11 +55,11 @@ CREATE TABLE `portStats` (
   `id` int(11) NOT NULL,
   `dpid` int(11) NOT NULL,
   `port_no` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `rx-packets` int(11) NOT NULL,
-  `rx-bytes` int(11) NOT NULL,
-  `rx-error` int(11) NOT NULL,
-  `tx-packets` int(11) NOT NULL,
-  `tx-bytes` int(11) NOT NULL,
+  `rx-packets` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `rx-bytes` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `rx-error` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `tx-packets` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `tx-bytes` varchar(255) CHARACTER SET utf8 NOT NULL,
   `tx-error` int(11) NOT NULL,
   `insertedTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
