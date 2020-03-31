@@ -54,7 +54,7 @@ def insertSwitchFeatures(dpid, n_buffers, n_tables, auxiliary_id, capabilities):
     finally:
         connection.close()
 
-def insertPortStats(datapath, port, rx_pkts, rx_bytes, rx_error, tx_pkts, tx_bytes, tx_error):
+def insertPortStats(hsh, datapath, port, rx_pkts, rx_bytes, rx_error, tx_pkts, tx_bytes, tx_error):
     connection = pymysql.connect(host=host,
                                     user=username,
                                     password=password,
@@ -63,12 +63,18 @@ def insertPortStats(datapath, port, rx_pkts, rx_bytes, rx_error, tx_pkts, tx_byt
                                     cursorclass=pymysql.cursors.DictCursor)
     try:
         with connection.cursor() as cursor:
-            # Create a new record
-            sql = ("INSERT INTO `portStats`(`dpid`, `port_no`, `rx-packets`, `rx-bytes`, `rx-error`, `tx-packets`, `tx-bytes`, `tx-error`) VALUES ( %s,%s, %s, %s, %s, %s, %s, %s)")
-            
-            cursor.execute(sql, (datapath, port,
-                    rx_pkts, rx_bytes, rx_error,
-                    tx_pkts, tx_bytes, tx_error))
+            # Read a single record
+            sql = "SELECT `hash` FROM `portStats` WHERE `hash`=%s"
+            cursor.execute(sql, (hsh))
+            result = cursor.fetchone()
+
+            if not result:
+                # Create a new record
+                sql = ("INSERT INTO `portStats`(`hash`, `dpid`, `port_no`, `rx-packets`, `rx-bytes`, `rx-error`, `tx-packets`, `tx-bytes`, `tx-error`) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                
+                cursor.execute(sql, (hsh, datapath, port,
+                        rx_pkts, rx_bytes, rx_error,
+                        tx_pkts, tx_bytes, tx_error))
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.
@@ -76,7 +82,7 @@ def insertPortStats(datapath, port, rx_pkts, rx_bytes, rx_error, tx_pkts, tx_byt
     finally:
         connection.close()
 
-def insertFlowStats(dpid, in_port, out_port, eth_src, eth_dst, 
+def insertFlowStats(hsh, dpid, in_port, out_port, eth_src, eth_dst, 
                     packets, bytes, eth_type, ip_proto, ipv4_src, 
                     ipv4_dst, port_src, port_dst):
     connection = pymysql.connect(host=host,
@@ -87,11 +93,17 @@ def insertFlowStats(dpid, in_port, out_port, eth_src, eth_dst,
                                     cursorclass=pymysql.cursors.DictCursor)
     try:
         with connection.cursor() as cursor:
-            # Create a new record
-            sql = ("INSERT INTO `flowStats`(`dpid`, `in-port`, `out-port`, `eth-src`, `eth-dst`, `packets`, `bytes`, `eth-type`, `ip-proto`, `ipv4-src`, `ipv4-dst`, `port-src`, `port-dst`) VALUES ( %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-            
-            cursor.execute(sql, (dpid, in_port, out_port, eth_src, eth_dst, packets, bytes, eth_type, ip_proto,
-                                    ipv4_src, ipv4_dst, port_src, port_dst))
+            # Read a single record
+            sql = "SELECT `hash` FROM `flowStats` WHERE `hash`=%s"
+            cursor.execute(sql, (hsh))
+            result = cursor.fetchone()
+
+            if not result:
+                # Create a new record
+                sql = ("INSERT INTO `flowStats`(`hash`, `dpid`, `in-port`, `out-port`, `eth-src`, `eth-dst`, `packets`, `bytes`, `eth-type`, `ip-proto`, `ipv4-src`, `ipv4-dst`, `port-src`, `port-dst`) VALUES ( %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                
+                cursor.execute(sql, (hsh, dpid, in_port, out_port, eth_src, eth_dst, packets, bytes, eth_type, ip_proto,
+                                        ipv4_src, ipv4_dst, port_src, port_dst))
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.
@@ -243,10 +255,10 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
     def _flow_stats_reply_handler(self, ev):
         body = ev.msg.body
 
-      
-        # print(body)
         for stat in body:
             if stat.priority == 1:
+                
+                
                 aux = ('%016x %8x %17s %17s %8x %8d %8d'%
                             (ev.msg.datapath.id,
                             stat.match['in_port'], stat.match['eth_dst'], stat.match['eth_src'],
@@ -283,14 +295,12 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                     aux = aux + ' ' + str(stat.match['udp_dst'])
                     port_dst = stat.match['udp_dst']
                 
-                print(aux)
-                if aux not in lista:
-                    lista.add(aux)
-                    insertFlowStats(ev.msg.datapath.id,
-                             stat.match['in_port'], stat.match['eth_src'], 
-                             stat.match['eth_dst'], stat.instructions[0].actions[0].port,
-                             stat.packet_count, stat.byte_count, eth_type,
-                             ip_proto, ipv4_src, ipv4_dst, port_src, port_dst)
+                print("FlowStats#"+str(hash(aux)))
+                insertFlowStats(hash(aux), ev.msg.datapath.id,
+                            stat.match['in_port'], stat.match['eth_src'], 
+                            stat.match['eth_dst'], stat.instructions[0].actions[0].port,
+                            stat.packet_count, stat.byte_count, eth_type,
+                            ip_proto, ipv4_src, ipv4_dst, port_src, port_dst)
 
            
 
@@ -298,22 +308,15 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
     def _port_stats_reply_handler(self, ev):
         body = ev.msg.body
 
-        self.logger.info('datapath         port     '
-                         'rx-pkts  rx-bytes rx-error '
-                         'tx-pkts  tx-bytes tx-error')
-        self.logger.info('---------------- -------- '
-                         '-------- -------- -------- '
-                         '-------- -------- --------')
+      
         for stat in sorted(body, key=attrgetter('port_no')):
             #print(stat)
             aux = ('%016x %8x %8d %8d %8d %8d %8d %8d' %
                              (ev.msg.datapath.id, stat.port_no,
                              stat.rx_packets, stat.rx_bytes, stat.rx_errors,
                              stat.tx_packets, stat.tx_bytes, stat.tx_errors))
-            self.logger.info(aux)
-            if aux not in lista:
-                lista.add(aux)
-                insertPortStats(ev.msg.datapath.id, stat.port_no,
-                                stat.rx_packets, stat.rx_bytes, stat.rx_errors,
-                                stat.tx_packets, stat.tx_bytes, stat.tx_errors)
-        
+            print("PortStats #"+str(hash(aux)))
+            insertPortStats(hash(aux), ev.msg.datapath.id, stat.port_no,
+                            stat.rx_packets, stat.rx_bytes, stat.rx_errors,
+                            stat.tx_packets, stat.tx_bytes, stat.tx_errors)
+    
