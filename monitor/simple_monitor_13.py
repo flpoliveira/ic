@@ -16,17 +16,21 @@ from ryu.lib.packet import icmp
 from ryu.lib import hub
 
 
-
-
+# CONEXAO COM O BANCO
+host = 'localhost'
+username = 'root'
+password = 'root'
+database = 'database'
+charset = 'utf8mb4'
 
 lista = set()
 
 def insertSwitchFeatures(dpid, n_buffers, n_tables, auxiliary_id, capabilities):
-    connection = pymysql.connect(host='localhost',
-                                            user='root',
-                                            password='root',
-                                            db='database',
-                                            charset='utf8mb4',
+    connection = pymysql.connect(host=host,
+                                            user=username,
+                                            password=password,
+                                            db=database,
+                                            charset=charset,
                                     cursorclass=pymysql.cursors.DictCursor)
     try:
         with connection.cursor() as cursor:
@@ -51,11 +55,11 @@ def insertSwitchFeatures(dpid, n_buffers, n_tables, auxiliary_id, capabilities):
         connection.close()
 
 def insertPortStats(datapath, port, rx_pkts, rx_bytes, rx_error, tx_pkts, tx_bytes, tx_error):
-    connection = pymysql.connect(host='localhost',
-                                    user='root',
-                                    password='root',
-                                    db='database',
-                                    charset='utf8mb4',
+    connection = pymysql.connect(host=host,
+                                    user=username,
+                                    password=password,
+                                    db=database,
+                                    charset=charset,
                                     cursorclass=pymysql.cursors.DictCursor)
     try:
         with connection.cursor() as cursor:
@@ -75,11 +79,11 @@ def insertPortStats(datapath, port, rx_pkts, rx_bytes, rx_error, tx_pkts, tx_byt
 def insertFlowStats(dpid, in_port, out_port, eth_src, eth_dst, 
                     packets, bytes, eth_type, ip_proto, ipv4_src, 
                     ipv4_dst, port_src, port_dst):
-    connection = pymysql.connect(host='localhost',
-                                    user='root',
-                                    password='root',
-                                    db='database',
-                                    charset='utf8mb4',
+    connection = pymysql.connect(host=host,
+                                    user=username,
+                                    password=password,
+                                    db=database,
+                                    charset=charset,
                                     cursorclass=pymysql.cursors.DictCursor)
     try:
         with connection.cursor() as cursor:

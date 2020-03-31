@@ -98,6 +98,13 @@
 
 ### Modelo conceitual do banco
 
-<img src='img/database.png' alt='Modelo conceitual do banco'>
+<img src='../img/database.png' alt='Modelo conceitual do banco'>
 
-<p>Uma base de dados foi desenvolvida para este sistema e a o código <b>simple_monitor_13.py </b> foi adaptado para que seus monitoramentos forem inseridos neste banco</p>
+* <code>port_src</code> e <code>port_dst</code> se referem a porta que o UDP/TCP utilizam, não são portas fisicas do switch, as portas fisicas são as <code>in-port</code> e <code> out-port </code>.
+
+<p>Uma base de dados foi desenvolvida para este sistema e a o código <b>simple_monitor_13.py </b> foi adaptado para que seus monitoramentos sejam inseridos neste banco</p>
+
+### Rodando o Monitor
+* Rode <code>database.sql</code> em um servidor e coloque suas configurações de conexão no inicio do código <b>simple_monitor_13.py</b>
+* Em um terminal rode o <code>sudo python topo.py</code>
+* Em outro terminal <code> ryu-manager --verbose simple_monitor_13.py</code>
