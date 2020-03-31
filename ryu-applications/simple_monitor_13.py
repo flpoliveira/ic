@@ -245,11 +245,37 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         self.logger.info('---------------- '
                          '-------- ----------------- '
                          '-------- -------- --------')
-        print(body)
+        # print(body)
+        for stat in body:
+            if stat.priority == 1:
+                aux = ('%016x %8x %17s %17s %8x %8d %8d'%
+                            (ev.msg.datapath.id,
+                            stat.match['in_port'], stat.match['eth_dst'], stat.match['eth_src'],
+                            stat.instructions[0].actions[0].port,
+                            stat.packet_count, stat.byte_count))
+                if 'eth_type' in stat.match:
+                    aux = aux + str(stat.match['eth_type'])
+                if 'ip_proto' in stat.match:
+                    aux = aux + ' ' + str(stat.match['ip_proto'])
+                if 'ipv4_src' in stat.match:
+                    aux = aux + (' %17s' % (stat.match['ipv4_src']))
+                if 'ipv4_dst' in stat.match:
+                    aux = aux + (' %17s' % (stat.match['ipv4_dst']))
+                if 'tcp_src' in stat.match:
+                    aux = aux + ' ' + str(stat.match['tcp_src'])
+                if 'tcp_dst' in stat.match:
+                    aux = aux + ' ' + str(stat.match['tcp_dst'])
+                if 'udp_src' in stat.match:
+                    aux = aux + ' ' + str(stat.match['udp_src'])
+                if 'udp_dst' in stat.match:
+                    aux = aux + ' ' + str(stat.match['udp_dst'])
+                
+                print(aux)
+
         # for stat in sorted([flow for flow in body if flow.priority == 1],
         #                    key=lambda flow: (flow.match['in_port'],
         #                                      flow.match['eth_dst'], flow.match['eth_src'])):
-            # aux = ('%016x %8x %17s %17s %8x %8d %8d'%
+        #     # aux = ('%016x %8x %17s %17s %8x %8d %8d'%
             #                  (ev.msg.datapath.id,
             #                  stat.match['in_port'], stat.match['eth_dst'], stat.match['tcp_src'],
             #                  stat.instructions[0].actions[0].port,
