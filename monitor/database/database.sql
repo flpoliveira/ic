@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Tempo de geração: 31/03/2020 às 11:59
+-- Tempo de geração: 31/03/2020 às 17:14
 -- Versão do servidor: 5.7.29-0ubuntu0.18.04.1
 -- Versão do PHP: 7.2.24-0ubuntu0.18.04.3
 
@@ -29,6 +29,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `flowStats` (
   `id` int(11) NOT NULL,
   `dpid` int(11) NOT NULL,
+  `hash` varchar(255) CHARACTER SET utf8 NOT NULL,
   `in-port` varchar(50) CHARACTER SET utf8 NOT NULL,
   `out-port` varchar(50) CHARACTER SET utf8 NOT NULL,
   `eth-src` varchar(17) CHARACTER SET utf8 NOT NULL,
@@ -54,6 +55,7 @@ CREATE TABLE `flowStats` (
 CREATE TABLE `portStats` (
   `id` int(11) NOT NULL,
   `dpid` int(11) NOT NULL,
+  `hash` varchar(255) CHARACTER SET utf8 NOT NULL,
   `port_no` varchar(255) CHARACTER SET utf8 NOT NULL,
   `rx-packets` varchar(255) CHARACTER SET utf8 NOT NULL,
   `rx-bytes` varchar(255) CHARACTER SET utf8 NOT NULL,
