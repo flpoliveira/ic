@@ -23,7 +23,6 @@ password = 'root'
 database = 'database'
 charset = 'utf8mb4'
 
-lista = set()
 
 def insertSwitchFeatures(dpid, n_buffers, n_tables, auxiliary_id, capabilities):
     connection = pymysql.connect(host=host,
@@ -254,7 +253,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
     @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
     def _flow_stats_reply_handler(self, ev):
         body = ev.msg.body
-
+        #i = 0
         for stat in body:
             if stat.priority == 1:
                 
@@ -294,11 +293,13 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                 if 'udp_dst' in stat.match:
                     aux = aux + ' ' + str(stat.match['udp_dst'])
                     port_dst = stat.match['udp_dst']
-                
-                print("FlowStats#"+str(hash(aux)))
+                #aux = aux + '-' + str(i)
+                # print('+++'+str(i) + '+++ - ' + aux)
+                #i+=1
+                #print("FlowStats#"+str(hash(aux)))
                 insertFlowStats(hash(aux), ev.msg.datapath.id,
-                            stat.match['in_port'], stat.match['eth_src'], 
-                            stat.match['eth_dst'], stat.instructions[0].actions[0].port,
+                            stat.match['in_port'], stat.instructions[0].actions[0].port,
+                            stat.match['eth_src'], stat.match['eth_dst'], 
                             stat.packet_count, stat.byte_count, eth_type,
                             ip_proto, ipv4_src, ipv4_dst, port_src, port_dst)
 
@@ -315,7 +316,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                              (ev.msg.datapath.id, stat.port_no,
                              stat.rx_packets, stat.rx_bytes, stat.rx_errors,
                              stat.tx_packets, stat.tx_bytes, stat.tx_errors))
-            print("PortStats #"+str(hash(aux)))
+            #print("PortStats #"+str(hash(aux)))
             insertPortStats(hash(aux), ev.msg.datapath.id, stat.port_no,
                             stat.rx_packets, stat.rx_bytes, stat.rx_errors,
                             stat.tx_packets, stat.tx_bytes, stat.tx_errors)
