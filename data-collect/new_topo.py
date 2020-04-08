@@ -23,13 +23,13 @@ class NewSwitchTopo(Topo):
         h7 = self.addHost('h7')
         h8 = self.addHost('h8')
 
-        self.addLink(h1, switch)
-        self.addLink(h2, switch)
-        self.addLink(h3, switch)
-        self.addLink(h4, switch)
+        self.addLink(h1, switch, bw=1000)
+        self.addLink(h2, switch, bw=1000)
+        self.addLink(h3, switch, bw=1000)
+        self.addLink(h4, switch, bw=1000)
 
         self.addLink(switch, switch2)
-        self.addLink(switch2, switch3, bw=1000)
+        self.addLink(switch2, switch3)
         self.addLink(switch3, switch4)
         
         self.addLink(h5, switch4)
