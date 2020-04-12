@@ -220,8 +220,11 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 
         # install a flow to avoid packet_in next time.
         if out_port != ofproto.OFPP_FLOOD:
-            if(tcpvar and ipv4_pkt):
-                match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, tcp_src = port_src, tcp_dst = port_dst)
+            if(tcpvar):
+                if(ipv4_pkt):
+                    match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, tcp_src = port_src, tcp_dst = port_dst)
+                else:
+                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,tcp_src=port_src, tcp_dst=port_dst)
             elif(udpvar and ipv4_pkt):
                 match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, udp_src = port_src, udp_dst = port_dst)
             else:

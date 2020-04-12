@@ -3,6 +3,7 @@ from mininet.net import Mininet
 from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel
 from mininet.cli import CLI
+from mininet.link import TCLink
 from mininet.node import RemoteController, OVSSwitch
 
 
@@ -23,10 +24,10 @@ class NewSwitchTopo(Topo):
         h7 = self.addHost('h7')
         h8 = self.addHost('h8')
 
-        self.addLink(h1, switch, bw=1000)
-        self.addLink(h2, switch, bw=1000)
-        self.addLink(h3, switch, bw=1000)
-        self.addLink(h4, switch, bw=1000)
+        self.addLink(h1, switch, cls=TCLink, bw=1000)
+        self.addLink(h2, switch, cls=TCLink, bw=1000)
+        self.addLink(h3, switch, cls=TCLink, bw=1000)
+        self.addLink(h4, switch, cls=TCLink, bw=1000)
 
         self.addLink(switch, switch2)
         self.addLink(switch2, switch3)
