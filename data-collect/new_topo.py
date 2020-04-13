@@ -53,16 +53,16 @@ def simpleTest():
     net.start()
 
     net['h5'].cmd('iperf -s -Z reno -i 1 > resultReno &')
-    net['h1'].cmd('iperf -c 10.0.0.5 -Z reno -t 3 &')
+    net['h1'].cmd('iperf -c 10.0.0.5 -Z reno -t 300 &')
 
     net['h6'].cmd('iperf -s -Z cubic -i 1 > resultCubic &')
-    net['h2'].cmd('iperf -c 10.0.0.6 -Z cubic -t 3 &')
+    net['h2'].cmd('iperf -c 10.0.0.6 -Z cubic -t 300 &')
 
     net['h7'].cmd('iperf -s -Z vegas -i 1 > resultVegas &')
-    net['h3'].cmd('iperf -c 10.0.0.7 -Z vegas -t 3 &')
+    net['h3'].cmd('iperf -c 10.0.0.7 -Z vegas -t 300 &')
 
     net['h8'].cmd('iperf -s -Z westwood -i 1 > resultWestwood &')
-    net['h4'].cmd('iperf -c 10.0.0.8 -Z  westwood -t 3 &')
+    net['h4'].cmd('iperf -c 10.0.0.8 -Z  westwood -t 300 &')
 
     
     # net.iperf(hosts=[net['h1'], net['h5']], l4Type= 'TCP', seconds = 5, fmt = '-z reno &' ,port= 5566)
