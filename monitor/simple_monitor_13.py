@@ -83,7 +83,7 @@ def insertPortStats(hsh, datapath, port, rx_pkts, rx_bytes, rx_error, tx_pkts, t
 
 def insertFlowStats(hsh, dpid, in_port, out_port, eth_src, eth_dst, 
                     packets, bytes, eth_type, ip_proto, ipv4_src, 
-                    ipv4_dst, port_src, port_dst):
+                    ipv4_dst, port_src, port_dst, priority):
     connection = pymysql.connect(host=host,
                                     user=username,
                                     password=password,
@@ -99,10 +99,10 @@ def insertFlowStats(hsh, dpid, in_port, out_port, eth_src, eth_dst,
 
             if not result:
                 # Create a new record
-                sql = ("INSERT INTO `flowStats`(`hash`, `dpid`, `in-port`, `out-port`, `eth-src`, `eth-dst`, `packets`, `bytes`, `eth-type`, `ip-proto`, `ipv4-src`, `ipv4-dst`, `port-src`, `port-dst`) VALUES ( %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                sql = ("INSERT INTO `flowStats`(`hash`, `dpid`, `in-port`, `out-port`, `eth-src`, `eth-dst`, `packets`, `bytes`, `eth-type`, `ip-proto`, `ipv4-src`, `ipv4-dst`, `port-src`, `port-dst`, `priority`) VALUES ( %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
                 
                 cursor.execute(sql, (hsh, dpid, in_port, out_port, eth_src, eth_dst, packets, bytes, eth_type, ip_proto,
-                                        ipv4_src, ipv4_dst, port_src, port_dst))
+                                        ipv4_src, ipv4_dst, port_src, port_dst, priority))
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.
@@ -161,7 +161,6 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
     def add_flow(self, datapath, priority, match, actions):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
-
         # construct flow_mod message and send it.
         inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
                                              actions)]
@@ -220,19 +219,23 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 
         # install a flow to avoid packet_in next time.
         if out_port != ofproto.OFPP_FLOOD:
+            priority = 1
             if(tcpvar):
                 if(ipv4_pkt):
                     match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, tcp_src = port_src, tcp_dst = port_dst)
+                    priority = 999
                 else:
                     match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,tcp_src=port_src, tcp_dst=port_dst)
             elif(udpvar and ipv4_pkt):
                 match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, udp_src = port_src, udp_dst = port_dst)
+                priority = 999
             else:
                 if(ipv4_pkt):
                     match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino)
+                    priority = 999
                 else:
                     match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-            self.add_flow(datapath, 1, match, actions)
+            self.add_flow(datapath, priority, match, actions)
 
         # construct packet_out message and send it.
         out = parser.OFPPacketOut(datapath=datapath,
@@ -258,7 +261,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         body = ev.msg.body
         #i = 0
         for stat in body:
-            if stat.priority == 1:
+            if stat.priority >= 1:
                 
                 
                 aux = ('%016x %8x %17s %17s %8x %8d %8d'%
@@ -304,7 +307,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                             stat.match['in_port'], stat.instructions[0].actions[0].port,
                             stat.match['eth_src'], stat.match['eth_dst'], 
                             stat.packet_count, stat.byte_count, eth_type,
-                            ip_proto, ipv4_src, ipv4_dst, port_src, port_dst)
+                            ip_proto, ipv4_src, ipv4_dst, port_src, port_dst, stat.priority)
 
            
 
