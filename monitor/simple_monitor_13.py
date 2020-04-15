@@ -1,4 +1,5 @@
 import pymysql.cursors
+from datetime import datetime
 from operator import attrgetter
 from ryu.base import app_manager
 from ryu.app import simple_switch_13
@@ -10,9 +11,11 @@ from ryu.controller.handler import set_ev_cls
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ipv4
+from ryu.lib.packet import ipv6
 from ryu.lib.packet import tcp
 from ryu.lib.packet import udp
 from ryu.lib.packet import icmp
+from ryu.lib.packet import arp
 from ryu.lib import hub
 
 
@@ -178,13 +181,15 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         # get Datapath ID to identify OpenFlow switches.
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
-
+        
         # analyse the received packets using the packet library.
         pkt = packet.Packet(msg.data)
         eth_pkt = pkt.get_protocol(ethernet.ethernet)
         tcpvar = pkt.get_protocol(tcp.tcp)
         udpvar = pkt.get_protocol(udp.udp)
         ipv4_pkt = pkt.get_protocol(ipv4.ipv4)
+        ipv6_pkt = pkt.get_protocol(ipv6.ipv6)
+        arp_pkt = pkt.get_protocol(arp.arp)
         icmpvar = pkt.get_protocol(icmp.icmp)
         
         dst = eth_pkt.dst
@@ -219,13 +224,13 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 
         # install a flow to avoid packet_in next time.
         if out_port != ofproto.OFPP_FLOOD:
-            priority = 1
-            if(tcpvar):
-                if(ipv4_pkt):
-                    match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, tcp_src = port_src, tcp_dst = port_dst)
-                    priority = 999
-                else:
-                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,tcp_src=port_src, tcp_dst=port_dst)
+            if(arp_pkt):
+                priority = 2
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+                print("Arp Packet at packet_in_handler "+arp_pkt.src_ip+" -> "+arp_pkt.dst_ip +" "+ datetime.now().strftime('%d/%m/%Y %H:%M:%S:%f'))
+            elif(tcpvar and ipv4_pkt):
+                match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, tcp_src = port_src, tcp_dst = port_dst)
+                priority = 999
             elif(udpvar and ipv4_pkt):
                 match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, udp_src = port_src, udp_dst = port_dst)
                 priority = 999
@@ -234,7 +239,11 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                     match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino)
                     priority = 999
                 else:
-                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+                    priority = 3
+                    if(ipv6_pkt):
+                        match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv6_pkt.proto, ipv6_src=ipv6_pkt.src, ipv6_dst=ipv6_pkt.dst)
+                    else:
+                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
             self.add_flow(datapath, priority, match, actions)
 
         # construct packet_out message and send it.
@@ -262,8 +271,6 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         #i = 0
         for stat in body:
             if stat.priority >= 1:
-                
-                
                 aux = ('%016x %8x %17s %17s %8x %8d %8d'%
                             (ev.msg.datapath.id,
                             stat.match['in_port'], stat.match['eth_dst'], stat.match['eth_src'],
@@ -303,6 +310,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                 # print('+++'+str(i) + '+++ - ' + aux)
                 #i+=1
                 #print("FlowStats#"+str(hash(aux)))
+                
                 insertFlowStats(hash(aux), ev.msg.datapath.id,
                             stat.match['in_port'], stat.instructions[0].actions[0].port,
                             stat.match['eth_src'], stat.match['eth_dst'], 
