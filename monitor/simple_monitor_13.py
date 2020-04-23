@@ -1,4 +1,3 @@
-import pymysql.cursors
 from datetime import datetime
 from operator import attrgetter
 from ryu.base import app_manager
@@ -17,6 +16,7 @@ from ryu.lib.packet import udp
 from ryu.lib.packet import icmp
 from ryu.lib.packet import arp
 from ryu.lib import hub
+from database import myDB
 
 
 # CONEXAO COM O BANCO
@@ -26,92 +26,9 @@ password = 'root'
 database = 'database'
 charset = 'utf8mb4'
 
+my_db = myDB(host, username, password, database, charset)
 
-def insertSwitchFeatures(dpid, n_buffers, n_tables, auxiliary_id, capabilities):
-    connection = pymysql.connect(host=host,
-                                            user=username,
-                                            password=password,
-                                            db=database,
-                                            charset=charset,
-                                    cursorclass=pymysql.cursors.DictCursor)
-    try:
-        with connection.cursor() as cursor:
-            # Read a single record
-            sql = "SELECT `dpid` FROM `switch` WHERE `dpid`=%s"
-            cursor.execute(sql, (dpid))
-            result = cursor.fetchone()
 
-            if not result:
-                with connection.cursor() as cursor:
-                    # Create a new record
-                    sql = ("INSERT INTO `switch`(`dpid`, `n_buffers`, `n_tables`, `auxiliary_id`, `capabilities`)"
-                            " VALUES ( %s,%s, %s, %s, %s)")
-                    
-                    cursor.execute(sql, (dpid, n_buffers,
-                            n_tables, auxiliary_id, capabilities))
-
-            # connection is not autocommit by default. So you must commit to save
-            # your changes.
-            connection.commit()
-    finally:
-        connection.close()
-
-def insertPortStats(hsh, datapath, port, rx_pkts, rx_bytes, rx_error, tx_pkts, tx_bytes, tx_error):
-    connection = pymysql.connect(host=host,
-                                    user=username,
-                                    password=password,
-                                    db=database,
-                                    charset=charset,
-                                    cursorclass=pymysql.cursors.DictCursor)
-    try:
-        with connection.cursor() as cursor:
-            # Read a single record
-            sql = "SELECT `hash` FROM `portStats` WHERE `hash`=%s"
-            cursor.execute(sql, (hsh))
-            result = cursor.fetchone()
-
-            if not result:
-                # Create a new record
-                sql = ("INSERT INTO `portStats`(`hash`, `dpid`, `port_no`, `rx-packets`, `rx-bytes`, `rx-error`, `tx-packets`, `tx-bytes`, `tx-error`) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-                
-                cursor.execute(sql, (hsh, datapath, port,
-                        rx_pkts, rx_bytes, rx_error,
-                        tx_pkts, tx_bytes, tx_error))
-
-        # connection is not autocommit by default. So you must commit to save
-        # your changes.
-        connection.commit()
-    finally:
-        connection.close()
-
-def insertFlowStats(hsh, dpid, in_port, out_port, eth_src, eth_dst, 
-                    packets, bytes, eth_type, ip_proto, ipv4_src, 
-                    ipv4_dst, port_src, port_dst, priority):
-    connection = pymysql.connect(host=host,
-                                    user=username,
-                                    password=password,
-                                    db=database,
-                                    charset=charset,
-                                    cursorclass=pymysql.cursors.DictCursor)
-    try:
-        with connection.cursor() as cursor:
-            # Read a single record
-            sql = "SELECT `hash` FROM `flowStats` WHERE `hash`=%s"
-            cursor.execute(sql, (hsh))
-            result = cursor.fetchone()
-
-            if not result:
-                # Create a new record
-                sql = ("INSERT INTO `flowStats`(`hash`, `dpid`, `in-port`, `out-port`, `eth-src`, `eth-dst`, `packets`, `bytes`, `eth-type`, `ip-proto`, `ipv4-src`, `ipv4-dst`, `port-src`, `port-dst`, `priority`) VALUES ( %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-                
-                cursor.execute(sql, (hsh, dpid, in_port, out_port, eth_src, eth_dst, packets, bytes, eth_type, ip_proto,
-                                        ipv4_src, ipv4_dst, port_src, port_dst, priority))
-
-        # connection is not autocommit by default. So you must commit to save
-        # your changes.
-        connection.commit()
-    finally:
-        connection.close()
 
 class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 
@@ -147,7 +64,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
-        insertSwitchFeatures(msg.datapath_id, msg.n_buffers, msg.n_tables, msg.auxiliary_id, msg.capabilities)
+        my_db.insertSwitchFeatures(msg.datapath_id, msg.n_buffers, msg.n_tables, msg.auxiliary_id, msg.capabilities)
         self.logger.info('OFPSwitchFeatures received: '
                         'datapath_id=0x%016x n_buffers=%d '
                         'n_tables=%d auxiliary_id=%d '
@@ -311,7 +228,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                 #i+=1
                 #print("FlowStats#"+str(hash(aux)))
                 
-                insertFlowStats(hash(aux), ev.msg.datapath.id,
+                my_db.insertFlowStats(hash(aux), ev.msg.datapath.id,
                             stat.match['in_port'], stat.instructions[0].actions[0].port,
                             stat.match['eth_src'], stat.match['eth_dst'], 
                             stat.packet_count, stat.byte_count, eth_type,
@@ -331,7 +248,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                              stat.rx_packets, stat.rx_bytes, stat.rx_errors,
                              stat.tx_packets, stat.tx_bytes, stat.tx_errors))
             #print("PortStats #"+str(hash(aux)))
-            insertPortStats(hash(aux), ev.msg.datapath.id, stat.port_no,
+            my_db.insertPortStats(hash(aux), ev.msg.datapath.id, stat.port_no,
                             stat.rx_packets, stat.rx_bytes, stat.rx_errors,
                             stat.tx_packets, stat.tx_bytes, stat.tx_errors)
     
