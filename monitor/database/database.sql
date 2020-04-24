@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Tempo de geração: 15/04/2020 às 12:20
+-- Tempo de geração: 23/04/2020 às 23:15
 -- Versão do servidor: 5.7.29-0ubuntu0.18.04.1
--- Versão do PHP: 7.2.24-0ubuntu0.18.04.3
+-- Versão do PHP: 7.2.24-0ubuntu0.18.04.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -32,7 +32,7 @@ CREATE TABLE `flowStats` (
   `hash` varchar(255) CHARACTER SET utf8 NOT NULL,
   `in-port` varchar(50) CHARACTER SET utf8 NOT NULL,
   `out-port` varchar(50) CHARACTER SET utf8 NOT NULL,
-  `eth-src` varchar(17) CHARACTER SET utf8 NOT NULL,
+  `eth-src` varchar(17) CHARACTER SET utf8 DEFAULT NULL,
   `eth-dst` varchar(17) CHARACTER SET utf8 NOT NULL,
   `packets` varchar(255) CHARACTER SET utf8 NOT NULL,
   `bytes` varchar(255) CHARACTER SET utf8 NOT NULL,
@@ -56,7 +56,6 @@ CREATE TABLE `flowStats` (
 CREATE TABLE `portStats` (
   `id` int(11) NOT NULL,
   `dpid` int(11) NOT NULL,
-  `hash` varchar(255) CHARACTER SET utf8 NOT NULL,
   `port_no` varchar(255) CHARACTER SET utf8 NOT NULL,
   `rx-packets` varchar(255) CHARACTER SET utf8 NOT NULL,
   `rx-bytes` varchar(255) CHARACTER SET utf8 NOT NULL,

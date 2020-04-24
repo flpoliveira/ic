@@ -142,9 +142,8 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         # install a flow to avoid packet_in next time.
         if out_port != ofproto.OFPP_FLOOD:
             if(arp_pkt):
-                priority = 2
+                priority = 1
                 match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-                print("Arp Packet at packet_in_handler "+arp_pkt.src_ip+" -> "+arp_pkt.dst_ip +" "+ datetime.now().strftime('%d/%m/%Y %H:%M:%S:%f'))
             elif(tcpvar and ipv4_pkt):
                 match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, tcp_src = port_src, tcp_dst = port_dst)
                 priority = 999
@@ -156,10 +155,11 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                     match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino)
                     priority = 999
                 else:
-                    priority = 3
                     if(ipv6_pkt):
+                        priority = 2
                         match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv6_pkt.proto, ipv6_src=ipv6_pkt.src, ipv6_dst=ipv6_pkt.dst)
                     else:
+                        priority = 2
                         match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
             self.add_flow(datapath, priority, match, actions)
 
@@ -188,11 +188,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         #i = 0
         for stat in body:
             if stat.priority >= 1:
-                aux = ('%016x %8x %17s %17s %8x %8d %8d'%
-                            (ev.msg.datapath.id,
-                            stat.match['in_port'], stat.match['eth_dst'], stat.match['eth_src'],
-                            stat.instructions[0].actions[0].port,
-                            stat.packet_count, stat.byte_count))
+                aux = str(ev.msg.datapath.id)+';'+str(stat.match['in_port'])+";"+str(stat.instructions[0].actions[0].port)+";"+stat.match['eth_src']+";"+stat.match['eth_dst']
                 eth_type = None
                 ip_proto = None
                 ipv4_src = None
@@ -200,34 +196,28 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                 port_src = None
                 port_dst = None
                 if 'eth_type' in stat.match:
-                    aux = aux + str(stat.match['eth_type'])
                     eth_type = stat.match['eth_type']
                 if 'ip_proto' in stat.match:
-                    aux = aux + ' ' + str(stat.match['ip_proto'])
                     ip_proto = stat.match['ip_proto']
                 if 'ipv4_src' in stat.match:
-                    aux = aux + (' %17s' % (stat.match['ipv4_src']))
+                    aux = aux + (';%17s' % (stat.match['ipv4_src']))
                     ipv4_src = stat.match['ipv4_src']
                 if 'ipv4_dst' in stat.match:
-                    aux = aux + (' %17s' % (stat.match['ipv4_dst']))
+                    aux = aux + (';%17s' % (stat.match['ipv4_dst']))
                     ipv4_dst = stat.match['ipv4_dst']
                 if 'tcp_src' in stat.match:
-                    aux = aux + ' ' + str(stat.match['tcp_src'])
+                    aux = aux + ';' + str(stat.match['tcp_src'])
                     port_src = stat.match['tcp_src']
                 if 'tcp_dst' in stat.match:
-                    aux = aux + ' ' + str(stat.match['tcp_dst'])
+                    aux = aux + ';' + str(stat.match['tcp_dst'])
                     port_dst = stat.match['tcp_dst']
                 if 'udp_src' in stat.match:
-                    aux = aux + ' ' + str(stat.match['udp_src'])
+                    aux = aux + ';' + str(stat.match['udp_src'])
                     port_src = stat.match['udp_src']
                 if 'udp_dst' in stat.match:
-                    aux = aux + ' ' + str(stat.match['udp_dst'])
+                    aux = aux + ';' + str(stat.match['udp_dst'])
                     port_dst = stat.match['udp_dst']
-                #aux = aux + '-' + str(i)
-                # print('+++'+str(i) + '+++ - ' + aux)
-                #i+=1
-                #print("FlowStats#"+str(hash(aux)))
-                
+               
                 my_db.insertFlowStats(hash(aux), ev.msg.datapath.id,
                             stat.match['in_port'], stat.instructions[0].actions[0].port,
                             stat.match['eth_src'], stat.match['eth_dst'], 
@@ -243,12 +233,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
       
         for stat in sorted(body, key=attrgetter('port_no')):
             #print(stat)
-            aux = ('%016x %8x %8d %8d %8d %8d %8d %8d' %
-                             (ev.msg.datapath.id, stat.port_no,
-                             stat.rx_packets, stat.rx_bytes, stat.rx_errors,
-                             stat.tx_packets, stat.tx_bytes, stat.tx_errors))
-            #print("PortStats #"+str(hash(aux)))
-            my_db.insertPortStats(hash(aux), ev.msg.datapath.id, stat.port_no,
+            my_db.insertPortStats(ev.msg.datapath.id, stat.port_no,
                             stat.rx_packets, stat.rx_bytes, stat.rx_errors,
                             stat.tx_packets, stat.tx_bytes, stat.tx_errors)
     
