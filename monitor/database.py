@@ -101,6 +101,34 @@ class myDB:
             connection.commit()
         finally:
             connection.close()
+    
+    def cleanDatabase(self):
+        connection = pymysql.connect(host=self.host,
+                                        user=self.username,
+                                        password=self.password,
+                                        db=self.database,
+                                        charset=self.charset,
+                                        cursorclass=pymysql.cursors.DictCursor)
+        try:
+            with connection.cursor() as cursor:
+                sql = "SET FOREIGN_KEY_CHECKS=0;"
+                cursor.execute(sql);
+                sql = "TRUNCATE TABLE `flowStats`;"
+                cursor.execute(sql);
+                sql = "TRUNCATE TABLE `portStats`;"
+                cursor.execute(sql);
+                sql = "TRUNCATE TABLE `switch`;"
+                cursor.execute(sql);
+                sql = "SET FOREIGN_KEY_CHECKS=1;"
+                cursor.execute(sql);
+                
+                # connection is not autocommit by default. So you must commit to save
+                # your changes.
+                connection.commit()
+        finally:
+            connection.close()
+        
+
 
 
 
