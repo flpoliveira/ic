@@ -141,26 +141,15 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 
         # install a flow to avoid packet_in next time.
         if out_port != ofproto.OFPP_FLOOD:
-            if(arp_pkt):
-                priority = 1
-                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-            elif(tcpvar and ipv4_pkt):
+            if(tcpvar and ipv4_pkt):
                 match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, tcp_src = port_src, tcp_dst = port_dst)
                 priority = 999
             elif(udpvar and ipv4_pkt):
                 match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino, udp_src = port_src, udp_dst = port_dst)
                 priority = 999
             else:
-                if(ipv4_pkt):
-                    match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv4_pkt.proto, ipv4_src=origem, ipv4_dst=destino)
-                    priority = 999
-                else:
-                    if(ipv6_pkt):
-                        priority = 2
-                        match = parser.OFPMatch(eth_type=ether.ETH_TYPE_IP, in_port=in_port, eth_dst=dst, eth_src=src, ip_proto = ipv6_pkt.proto, ipv6_src=ipv6_pkt.src, ipv6_dst=ipv6_pkt.dst)
-                    else:
-                        priority = 2
-                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+                priority = 1
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
             self.add_flow(datapath, priority, match, actions)
 
         # construct packet_out message and send it.
@@ -187,7 +176,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         body = ev.msg.body
         #i = 0
         for stat in body:
-            if stat.priority >= 1:
+            if stat.priority > 1:
                 aux = str(ev.msg.datapath.id)+';'+str(stat.match['in_port'])+";"+str(stat.instructions[0].actions[0].port)+";"+stat.match['eth_src']+";"+stat.match['eth_dst']
                 eth_type = None
                 ip_proto = None
