@@ -9,7 +9,7 @@ from mininet.node import RemoteController, OVSSwitch
 
 class NewSwitchTopo(Topo):
     def build(self):
-        Core = self.addSwitch('Core'm dpid="9000000000000000")
+        Core = self.addSwitch('Core', dpid="9000000000000000")
         Agg = []
         Agg.append(self.addSwitch('Agg1', dpid="9000000000000001"))
         #Agg.append(self.addSwitch('Agg2'))
