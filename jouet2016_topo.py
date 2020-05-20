@@ -9,24 +9,27 @@ from mininet.node import RemoteController, OVSSwitch
 
 class NewSwitchTopo(Topo):
     def build(self):
-        Core = self.addSwitch('Core', dpid="9000000000000000")
+        Core = self.addSwitch('Core', dpid="0000000000090000")
         Agg = []
-        Agg.append(self.addSwitch('Agg1', dpid="9000000000000001"))
-        #Agg.append(self.addSwitch('Agg2'))
+        Agg.append(self.addSwitch('Agg1', dpid="0000000000090001"))
+        Agg.append(self.addSwitch('Agg2', dpid="0000000000090002"))
         ToR = []
-        for i in range(1, 3):
-          ToR.append(self.addSwitch('ToR'+str(i), dpid=("900000000000020"+str(i))))
+        for i in range(1, 4):
+          ToR.append(self.addSwitch('ToR'+str(i), dpid=("000000000009020"+str(i))))
         host = []
-        for i in range(1, 11):
+        for i in range(1, 41):
           host.append(self.addHost('h'+str(i)))
 
         self.addLink(Core, Agg[0], cls=TCLink, bw=1000, delay='1ms')
+        self.addLink(Core, Agg[1], cls=TCLink, bw=1000, delay='1ms')
        
+        for i in Agg:
+          for j in range(0, 2):
+            self.addLink(i, ToR[j], cls=TCLink, bw=1000, delay='0.2ms')
 
-        self.addLink(Agg[0], ToR[0], cls=TCLink, bw=1000, delay='0.2ms')
-
-        for i in host:
-          self.addLink(i, ToR[0], cls=TCLink, bw=1000, delay='0.1ms')
+        for i in ToR:
+          for j in range(0, 10):
+            self.addLink(h[j], i, cls=TCLink, bw=1000, delay='0.1ms')
 
 
 
