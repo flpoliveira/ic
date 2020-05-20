@@ -29,7 +29,7 @@ class NewSwitchTopo(Topo):
 
         for i in ToR:
           for j in range(0, 10):
-            self.addLink(h[j], i, cls=TCLink, bw=1000, delay='0.1ms')
+            self.addLink(host[j], i, cls=TCLink, bw=1000, delay='0.1ms')
 
 
 
