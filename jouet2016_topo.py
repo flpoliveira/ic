@@ -19,17 +19,19 @@ class NewSwitchTopo(Topo):
         host = []
         for i in range(1, 41):
           host.append(self.addHost('h'+str(i)))
-
-        self.addLink(Core, Agg[0], cls=TCLink, bw=1000, delay='1ms')
-        self.addLink(Core, Agg[1], cls=TCLink, bw=1000, delay='1ms')
-       
+        for i in ToR:
+          for j in range(0, 10):
+            self.addLink(i, host[j], cls=TCLink, bw=1000, delay='0.1ms')
         for i in Agg:
           for j in range(0, 2):
             self.addLink(i, ToR[j], cls=TCLink, bw=1000, delay='0.2ms')
+        
+        self.addLink(Core, Agg[0], cls=TCLink, bw=1000, delay='1ms')
+        self.addLink(Core, Agg[1], cls=TCLink, bw=1000, delay='1ms')
+       
+        
 
-        for i in ToR:
-          for j in range(0, 10):
-            self.addLink(host[j], i, cls=TCLink, bw=1000, delay='0.1ms')
+       
 
 
 
