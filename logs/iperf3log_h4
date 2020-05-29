@@ -1,0 +1,15 @@
+-----------------------------------------------------------
+Server listening on 5004
+-----------------------------------------------------------
+Accepted connection from 10.0.0.4, port 48506
+[  5] local 10.0.0.1 port 5004 connected to 10.0.0.4 port 48528
+[ ID] Interval           Transfer     Bandwidth
+[  5]   0.00-0.02   sec  11.3 KBytes   637 KBytes/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bandwidth
+[  5]   0.00-0.02   sec  0.00 Bytes  0.00 KBytes/sec                  sender
+[  5]   0.00-0.02   sec  11.3 KBytes   637 KBytes/sec                  receiver
+-----------------------------------------------------------
+Server listening on 5004
+-----------------------------------------------------------
+iperf3: interrupt - the server has terminated

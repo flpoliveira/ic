@@ -1,0 +1,15 @@
+-----------------------------------------------------------
+Server listening on 5009
+-----------------------------------------------------------
+Accepted connection from 10.0.0.9, port 43790
+[  5] local 10.0.0.1 port 5009 connected to 10.0.0.9 port 43806
+[ ID] Interval           Transfer     Bandwidth
+[  5]   0.00-0.01   sec  14.1 KBytes  1536 KBytes/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bandwidth
+[  5]   0.00-0.01   sec  0.00 Bytes  0.00 KBytes/sec                  sender
+[  5]   0.00-0.01   sec  14.1 KBytes  1536 KBytes/sec                  receiver
+-----------------------------------------------------------
+Server listening on 5009
+-----------------------------------------------------------
+iperf3: interrupt - the server has terminated

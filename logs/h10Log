@@ -1,0 +1,10 @@
+Connecting to host 10.0.0.1, port 5010
+[  4] local 10.0.0.10 port 55604 connected to 10.0.0.1 port 5010
+[ ID] Interval           Transfer     Bandwidth       Retr  Cwnd
+[  4]   0.00-0.01   sec   141 KBytes   217 Mbits/sec    0   24.0 KBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-0.01   sec   141 KBytes   217 Mbits/sec    0             sender
+[  4]   0.00-0.01   sec  74.9 KBytes   115 Mbits/sec                  receiver
+
+iperf Done.

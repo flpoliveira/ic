@@ -1,0 +1,15 @@
+-----------------------------------------------------------
+Server listening on 5010
+-----------------------------------------------------------
+Accepted connection from 10.0.0.10, port 55596
+[  5] local 10.0.0.1 port 5010 connected to 10.0.0.10 port 55604
+[ ID] Interval           Transfer     Bandwidth
+[  5]   0.00-0.01   sec  74.9 KBytes  5570 KBytes/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bandwidth
+[  5]   0.00-0.01   sec  0.00 Bytes  0.00 KBytes/sec                  sender
+[  5]   0.00-0.01   sec  74.9 KBytes  5570 KBytes/sec                  receiver
+-----------------------------------------------------------
+Server listening on 5010
+-----------------------------------------------------------
+iperf3: interrupt - the server has terminated

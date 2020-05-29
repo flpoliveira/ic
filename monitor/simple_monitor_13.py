@@ -63,8 +63,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         datapath = ev.msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
-
-        my_db.insertSwitchFeatures(msg.datapath_id, msg.n_buffers, msg.n_tables, msg.auxiliary_id, msg.capabilities)
+        my_db.insertSwitchFeatures(("%016x" % msg.datapath_id), msg.n_buffers, msg.n_tables, msg.auxiliary_id, msg.capabilities)
         self.logger.info('OFPSwitchFeatures received: '
                         'datapath_id=0x%016x n_buffers=%d '
                         'n_tables=%d auxiliary_id=%d '
@@ -177,7 +176,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         #i = 0
         for stat in body:
             if stat.priority > 1:
-                aux = str(ev.msg.datapath.id)+';'+str(stat.match['in_port'])+";"+str(stat.instructions[0].actions[0].port)+";"+stat.match['eth_src']+";"+stat.match['eth_dst']
+                aux = ("%016x" % ev.msg.datapath.id)+';'+str(stat.match['in_port'])+";"+str(stat.instructions[0].actions[0].port)+";"+stat.match['eth_src']+";"+stat.match['eth_dst']
                 eth_type = None
                 ip_proto = None
                 ipv4_src = None
@@ -207,7 +206,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                     aux = aux + ';' + str(stat.match['udp_dst'])
                     port_dst = stat.match['udp_dst']
                
-                my_db.insertFlowStats(hash(aux), ev.msg.datapath.id,
+                my_db.insertFlowStats(hash(aux), ("%016x"%ev.msg.datapath.id),
                             stat.match['in_port'], stat.instructions[0].actions[0].port,
                             stat.match['eth_src'], stat.match['eth_dst'], 
                             stat.packet_count, stat.byte_count, eth_type,
@@ -221,8 +220,8 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 
       
         for stat in sorted(body, key=attrgetter('port_no')):
-            #print(stat)
-            my_db.insertPortStats(ev.msg.datapath.id, stat.port_no,
+            print(stat)
+            my_db.insertPortStats(("%016x"%ev.msg.datapath.id), stat.port_no,
                             stat.rx_packets, stat.rx_bytes, stat.rx_errors,
                             stat.tx_packets, stat.tx_bytes, stat.tx_errors)
     
